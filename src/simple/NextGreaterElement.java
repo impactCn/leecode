@@ -1,6 +1,9 @@
 package simple;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * @program: 下一个更大元素 I
@@ -35,8 +38,8 @@ public class NextGreaterElement {
 
     public static void main(String[] args) {
 
-        int[] nums1 = {4,1,2};
-        int[] nums2 = {1,3,4,2};
+        int[] nums1 = {2,4};
+        int[] nums2 = {1,2,3,4};
         System.err.println(Arrays.toString(new NextGreaterElement().methodOne(nums1, nums2)));
 
 
@@ -44,7 +47,7 @@ public class NextGreaterElement {
 
 
     /**
-     * 穷举
+     * 穷举法
      * @param nums1
      * @param nums2
      * @return
@@ -52,22 +55,57 @@ public class NextGreaterElement {
     private int[] methodOne(int[] nums1, int[] nums2) {
 
         int[] result = new int[nums1.length];
-        int count = 0;
+
         for (int i = 0; i < nums1.length; i++) {
-            int temp = 0;
-            if (nums1[i] >= nums2.length) {
-                result[i] = -1;
-            } else  {
-                temp = nums2[nums1[i]] + count;
-                if (temp > nums2.length) {
-                    result[i] = -1;
-                    continue;
+            for (int j = 0; j < nums2.length; j++) {
+                if (nums1[i] == nums2[j]) {
+                    // 存在子集
+                    if (j == nums2.length - 1) {
+                        result[i] = -1;
+                        break;
+                    }
+                    for (int k = j + 1; k < nums2.length; k++) {
+                        if (nums1[i] < nums2[k]) {
+                            result[i] = nums2[k];
+                            break;
+                        }
+                    }
                 }
-                result[i] = nums2[nums1[i]];
-                count++;
             }
+            if (result[i] == 0) {
+                result[i] = -1;
+            }
+
         }
         return result;
+    }
 
+    /**
+     *
+     * @param nums1
+     * @param nums2
+     * @return
+     */
+    private int[] methodTwo(int[] nums1, int[] nums2) {
+        Map<Integer, Integer> map = new HashMap<>(nums2.length);
+        Stack<Integer> stack = new Stack<>();
+        int[] res = new int[nums1.length];
+        // 寻找下一个大数
+        for (int i = 0; i < nums2.length; i++) {
+
+            while (!stack.empty() && nums2[i] > stack.peek()) {
+                map.put(stack.pop(), nums2[i]);
+            }
+            stack.push(nums2[i]);
+        }
+        // 还在 stack 意味着没有找到下一个大数
+        while (!stack.empty()) {
+            map.put(stack.pop(), -1);
+        }
+
+        for (int i = 0; i < res.length; i++) {
+            res[i] = map.get(nums1[i]);
+        }
+        return res;
     }
 }
